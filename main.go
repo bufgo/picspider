@@ -10,7 +10,14 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly"
 	"github.com/gocolly/colly/extensions"
+	"github.com/picspider/models"
+	"github.com/picspider/pkg/setting"
 )
+
+func init() {
+	setting.Setup()
+	models.Setup()
+}
 
 func main() {
 	urlstr := ""
@@ -41,10 +48,10 @@ func main() {
 	c.OnResponse(func(resp *colly.Response) {
 		fmt.Println("response received", resp.StatusCode)
 
-		// goquery直接读取resp.Body的内容
+		// goquery read resp.Body
 		htmlDoc, err := goquery.NewDocumentFromReader(bytes.NewReader(resp.Body))
 
-		// 读取url再传给goquery，访问url读取内容，此处不建议使用
+		// url send goquery，get the url respon，not recommended here
 		// htmlDoc, err := goquery.NewDocument(resp.Request.URL.String())
 
 		if err != nil {
@@ -56,6 +63,7 @@ func main() {
 			band, _ := s.Attr("href")
 			title := s.Text()
 			fmt.Printf("图集 %d: %s - %s\n", i+1, title, band)
+			models.SaveSearchResult(models.PhotoAlbum{AlbumName: title, AlbumURL: band})
 			// c.Visit(band)
 		})
 

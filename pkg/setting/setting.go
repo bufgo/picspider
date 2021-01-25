@@ -6,6 +6,11 @@ import (
 	"github.com/go-ini/ini"
 )
 
+// App model
+type App struct {
+	Path string
+}
+
 // Database model
 type Database struct {
 	Type     string
@@ -14,6 +19,9 @@ type Database struct {
 	Host     string
 	Name     string
 }
+
+// AppSetting app info
+var AppSetting = &App{}
 
 // DatabaseSetting database info
 var DatabaseSetting = &Database{}
@@ -27,6 +35,7 @@ func Setup() {
 		log.Fatalf("setting.Setup, fail to parse 'conf/app.ini': %v", err)
 	}
 
+	mapTo("app", AppSetting)
 	mapTo("database", DatabaseSetting)
 }
 

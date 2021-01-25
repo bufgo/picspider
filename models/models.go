@@ -29,7 +29,7 @@ func Setup() {
 
 	engine.SetMapper(names.GonicMapper{})
 
-	err = engine.Sync2(new(PhotoAlbum))
+	err = engine.Sync2(new(PhotoAlbum), new(Photo))
 	if err != nil {
 		log.Fatalf("models.Sycn2, database table create err: %v", err)
 	}

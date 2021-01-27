@@ -10,19 +10,18 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly"
 	"github.com/gocolly/colly/extensions"
-	"github.com/picspider/models"
 )
 
-// SearchSpider search page spider
-func SearchSpider() {
-	urlstr := ""
+// TagSpider search page spider
+func TagSpider() {
+	urlstr := "https:///tags"
 	u, err := url.Parse(urlstr)
 	if err != nil {
-		log.Fatal(err)
+		log.Println("Tag request error")
 	}
 	c := colly.NewCollector()
 	// timeout
-	c.SetRequestTimeout(100 * time.Second)
+	c.SetRequestTimeout(1000 * time.Second)
 	// Agent
 	extensions.RandomUserAgent(c)
 	c.OnRequest(func(r *colly.Request) {
@@ -54,13 +53,13 @@ func SearchSpider() {
 		}
 
 		// 找到抓取项 <div class="post-info"> 下所有的a解析
-		htmlDoc.Find(".post-info h2 a").Each(func(i int, s *goquery.Selection) {
+		// #main > ul > li:nth-child(1) > a > h2
+		htmlDoc.Find("main ul li a").Each(func(i int, s *goquery.Selection) {
 			band, _ := s.Attr("href")
-			title := s.Text()
-			fmt.Printf("图集 %d: %s - %s\n", i+1, title, band)
-			models.SaveSearchResult(models.PhotoAlbum{AlbumName: title, AlbumURL: band})
-			// visit band page
-			PhotoAlbumPageSpider(title, band)
+			tag := s.Find("h2").Text()
+			fmt.Printf("标签 %d: %s - %s\n", i+1, tag, band)
+			// visit tag info page
+			TagBand(band)
 		})
 
 	})

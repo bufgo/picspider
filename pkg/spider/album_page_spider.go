@@ -21,11 +21,11 @@ func PhotoAlbumPageSpider(dirname, band string) {
 	urlstr := band
 	u, err := url.Parse(urlstr)
 	if err != nil {
-		log.Fatal(err)
+		go PhotoAlbumPageSpider(dirname, band)
 	}
 	c := colly.NewCollector()
 	// timeout
-	c.SetRequestTimeout(100 * time.Second)
+	c.SetRequestTimeout(1000 * time.Second)
 	// Agent
 	extensions.RandomUserAgent(c)
 	c.OnRequest(func(r *colly.Request) {
@@ -54,6 +54,12 @@ func PhotoAlbumPageSpider(dirname, band string) {
 
 		if err != nil {
 			log.Fatal(err)
+		}
+
+		count := htmlDoc.Find(".content-hidden").Length()
+		if count > 0 {
+			log.Println("需要支付")
+			return
 		}
 
 		// 找到抓取项 <div class="entry-content"> 下所有的a解析

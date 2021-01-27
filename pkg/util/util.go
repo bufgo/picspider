@@ -46,6 +46,7 @@ func DownloadPhoto(dirname, title, band string) {
 	response, err := http.Get(band)
 	if err != nil {
 		log.Println("get band failed:", err)
+		go DownloadPhoto(dirname, title, band)
 		return
 	}
 
@@ -54,6 +55,7 @@ func DownloadPhoto(dirname, title, band string) {
 	data, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		log.Println("read data failed:", band, err)
+		go DownloadPhoto(dirname, title, band)
 		return
 	}
 

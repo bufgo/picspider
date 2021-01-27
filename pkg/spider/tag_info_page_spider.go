@@ -13,16 +13,35 @@ import (
 	"github.com/picspider/models"
 )
 
-// SearchSpider search page spider
-func SearchSpider() {
-	urlstr := ""
+var flag = false
+
+// TagBand is get page count
+func TagBand(band string) {
+	tmp := band
+	var i = 1
+	flag = false
+	for {
+		url := tmp
+		url = band + "/page/" + fmt.Sprint(i)
+		fmt.Println(url)
+		TagInfoPageSpider(url)
+		i++
+		if flag {
+			break
+		}
+	}
+}
+
+// TagInfoPageSpider tag info page spider
+func TagInfoPageSpider(page string) {
+	urlstr := page
 	u, err := url.Parse(urlstr)
 	if err != nil {
-		log.Fatal(err)
+		go TagInfoPageSpider(page)
 	}
 	c := colly.NewCollector()
 	// timeout
-	c.SetRequestTimeout(100 * time.Second)
+	c.SetRequestTimeout(1000 * time.Second)
 	// Agent
 	extensions.RandomUserAgent(c)
 	c.OnRequest(func(r *colly.Request) {
@@ -53,13 +72,19 @@ func SearchSpider() {
 			log.Fatal(err)
 		}
 
+		//#post-list > div
+		htmlDoc.Find(".empty-page").Each(func(i int, s *goquery.Selection) {
+			flag = true
+			return
+		})
+
 		// 找到抓取项 <div class="post-info"> 下所有的a解析
 		htmlDoc.Find(".post-info h2 a").Each(func(i int, s *goquery.Selection) {
 			band, _ := s.Attr("href")
 			title := s.Text()
 			fmt.Printf("图集 %d: %s - %s\n", i+1, title, band)
 			models.SaveSearchResult(models.PhotoAlbum{AlbumName: title, AlbumURL: band})
-			// visit band page
+			// visit album info page
 			PhotoAlbumPageSpider(title, band)
 		})
 

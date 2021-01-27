@@ -12,5 +12,5 @@ func init() {
 }
 
 func main() {
-	spider.Spider()
+	spider.TagSpider()
 }
